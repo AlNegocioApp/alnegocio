@@ -4,8 +4,8 @@
 
 const env = (import.meta as unknown as { env?: Record<string, string> }).env ?? {};
 
-const MANUAL_SUPABASE_URL = "";
-const MANUAL_SUPABASE_ANON_KEY = "";
+const MANUAL_SUPABASE_URL = "https://qabgldgdeigpduuzygpy.supabase.co";
+const MANUAL_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhYmdsZGdkZWlncGR1dXp5Z3B5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDg4MjcsImV4cCI6MjA5NjAyNDgyN30.-jrnZH2H-NqV4qVeFkuD6-JLv6RpaYNjIh2OjehD4jw";
 
 export const SUPABASE_URL = env.VITE_SUPABASE_URL ?? MANUAL_SUPABASE_URL ?? "";
 export const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY ?? MANUAL_SUPABASE_ANON_KEY ?? "";
