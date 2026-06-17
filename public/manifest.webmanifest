@@ -1,0 +1,15 @@
+﻿{
+  "name": "AlNegocio",
+  "short_name": "AlNegocio",
+  "description": "Gestión y ventas para negocios en Cuba",
+  "start_url": "/alnegocio/",
+  "scope": "/alnegocio/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "icons": [
+    { "src": "/alnegocio/icon-512.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/alnegocio/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

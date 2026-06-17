@@ -1,0 +1,257 @@
+﻿@import "tailwindcss";
+
+/* ============================================================
+   AlNegocio · Estilo "Apple futurista"
+   Minimalista, fluido, con animaciones profesionales.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter,
+    ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #f5f5f7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Scroll suave y barra fina estilo macOS */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  60% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes growBar {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes floatGlow {
+  0%, 100% { opacity: 0.5; transform: translateY(0) scale(1); }
+  50% { opacity: 0.85; transform: translateY(-8px) scale(1.04); }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 0.35); }
+  70% { box-shadow: 0 0 0 12px rgb(16 185 129 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(16 185 129 / 0); }
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(0); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes routePulse { to { stroke-dashoffset: -20; } }
+@keyframes markerPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(52 211 153 / 0.28); }
+  50% { box-shadow: 0 0 0 14px rgb(52 211 153 / 0); }
+}
+
+/* ============================================================
+   CLASES UTILITARIAS DE ANIMACIÓN
+   ============================================================ */
+.anim-fade-up { animation: fadeUp 0.5s var(--ease-smooth) both; }
+.anim-fade-in { animation: fadeIn 0.4s ease both; }
+.anim-scale-in { animation: scaleIn 0.4s var(--ease-spring) both; }
+.anim-pop { animation: popIn 0.4s var(--ease-spring) both; }
+.anim-slide-right { animation: slideInRight 0.45s var(--ease-smooth) both; }
+.anim-check { animation: checkPop 0.5s var(--ease-spring) both; }
+.pulse-ring { animation: pulseRing 1.8s ease-out infinite; }
+
+.stagger > * { animation: fadeUp 0.5s var(--ease-smooth) both; }
+.stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger > *:nth-child(3) { animation-delay: 0.13s; }
+.stagger > *:nth-child(4) { animation-delay: 0.18s; }
+.stagger > *:nth-child(5) { animation-delay: 0.23s; }
+.stagger > *:nth-child(6) { animation-delay: 0.28s; }
+.stagger > *:nth-child(7) { animation-delay: 0.33s; }
+.stagger > *:nth-child(8) { animation-delay: 0.38s; }
+
+.transition-apple { transition: all 0.3s var(--ease-smooth); }
+
+.press { transition: transform 0.18s var(--ease-spring); }
+.press:active { transform: scale(0.96); }
+
+.card-hover { transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth); }
+.card-hover:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.18); }
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.glass-dark {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.bar-grow { transform-origin: bottom; animation: growBar 0.7s var(--ease-spring) both; }
+
+.shimmer {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.float-glow { animation: floatGlow 6s ease-in-out infinite; }
+
+.route-pulse { animation: routePulse 1.2s linear infinite; }
+.marker-ring {
+  width: 14px; height: 14px;
+  border: 3px solid rgb(255 255 255 / 0.92);
+  border-radius: 999px;
+  animation: markerPulse 1.7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   MODO OSCURO
+   ============================================================ */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: #0f172a;
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.dark .card-hover {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .text-slate-900 {
+  color: #f1f5f9;
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1;
+}
+
+.dark .text-slate-600 {
+  color: #94a3b8;
+}
+
+.dark .text-slate-500 {
+  color: #64748b;
+}
+
+.dark .text-slate-400 {
+  color: #475569;
+}
+
+.dark .border-slate-200 {
+  border-color: #334155;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1e293b;
+}
+
+.dark .bg-slate-100 {
+  background-color: #334155;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #334155;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1e293b;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
