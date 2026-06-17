@@ -1,4 +1,4 @@
-import type { ModuleKey } from "../lib/types";
+﻿import type { ModuleKey } from "../lib/types";
 
 export type Role = "owner" | "admin" | "vendedor";
 
@@ -14,7 +14,6 @@ export const ROLE_DESC: Record<Role, string> = {
   vendedor: "Solo punto de venta: registrar ventas.",
 };
 
-// Qué módulos puede ver cada rol
 const PERMISSIONS: Record<Role, ModuleKey[]> = {
   owner: [
     "dashboard",
@@ -30,7 +29,6 @@ const PERMISSIONS: Record<Role, ModuleKey[]> = {
     "cuadre",
     "cambio",
     "calculadora",
-    "almacenes",
     "usuarios",
     "suscripcion",
     "ajustes",

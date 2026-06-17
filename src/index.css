@@ -1,8 +1,7 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 /* ============================================================
    AlNegocio · Estilo "Apple futurista"
-   Minimalista, fluido, con animaciones profesionales.
    ============================================================ */
 
 :root {
@@ -21,7 +20,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: #f5f5f7; /* gris Apple */
+  background: #f5f5f7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -33,7 +32,6 @@ textarea {
   font: inherit;
 }
 
-/* Scroll suave y barra fina estilo macOS */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
@@ -50,9 +48,7 @@ textarea {
   background: rgba(0, 0, 0, 0.3);
 }
 
-/* ============================================================
-   ANIMACIONES
-   ============================================================ */
+/* ANIMACIONES */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -116,9 +112,7 @@ textarea {
   50% { box-shadow: 0 0 0 14px rgb(52 211 153 / 0); }
 }
 
-/* ============================================================
-   CLASES UTILITARIAS DE ANIMACIÓN
-   ============================================================ */
+/* CLASES UTILITARIAS DE ANIMACIÓN */
 .anim-fade-up { animation: fadeUp 0.5s var(--ease-smooth) both; }
 .anim-fade-in { animation: fadeIn 0.4s ease both; }
 .anim-scale-in { animation: scaleIn 0.4s var(--ease-spring) both; }
@@ -127,7 +121,6 @@ textarea {
 .anim-check { animation: checkPop 0.5s var(--ease-spring) both; }
 .pulse-ring { animation: pulseRing 1.8s ease-out infinite; }
 
-/* Aparición escalonada de listas (delays) */
 .stagger > * { animation: fadeUp 0.5s var(--ease-smooth) both; }
 .stagger > *:nth-child(1) { animation-delay: 0.03s; }
 .stagger > *:nth-child(2) { animation-delay: 0.08s; }
@@ -138,18 +131,14 @@ textarea {
 .stagger > *:nth-child(7) { animation-delay: 0.33s; }
 .stagger > *:nth-child(8) { animation-delay: 0.38s; }
 
-/* Transiciones suaves por defecto en elementos interactivos */
 .transition-apple { transition: all 0.3s var(--ease-smooth); }
 
-/* Efecto "press" al tocar (estilo iOS) */
 .press { transition: transform 0.18s var(--ease-spring); }
 .press:active { transform: scale(0.96); }
 
-/* Tarjeta con elevación animada al pasar el cursor */
 .card-hover { transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth); }
 .card-hover:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.18); }
 
-/* Vidrio esmerilado (glassmorphism) */
 .glass {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: saturate(180%) blur(20px);
@@ -161,17 +150,14 @@ textarea {
   -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
-/* Barras de gráfico que crecen desde abajo */
 .bar-grow { transform-origin: bottom; animation: growBar 0.7s var(--ease-spring) both; }
 
-/* Efecto de carga shimmer */
 .shimmer {
   background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
 }
 
-/* Brillo flotante decorativo */
 .float-glow { animation: floatGlow 6s ease-in-out infinite; }
 
 .route-pulse { animation: routePulse 1.2s linear infinite; }
@@ -182,7 +168,80 @@ textarea {
   animation: markerPulse 1.7s ease-in-out infinite;
 }
 
-/* Respeta a quien prefiere menos animación */
+/* ============================================================
+   MODO OSCURO
+   ============================================================ */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: #0f172a;
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.dark .card-hover {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .text-slate-900 {
+  color: #f1f5f9;
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1;
+}
+
+.dark .text-slate-600 {
+  color: #94a3b8;
+}
+
+.dark .text-slate-500 {
+  color: #64748b;
+}
+
+.dark .text-slate-400 {
+  color: #475569;
+}
+
+.dark .border-slate-200 {
+  border-color: #334155;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1e293b;
+}
+
+.dark .bg-slate-100 {
+  background-color: #334155;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #334155;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1e293b;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

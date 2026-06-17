@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { PlatformProvider, usePlatform, isActive, daysLeft } from "./platform/platformStore";
 import { StoreProvider } from "./lib/store";
 import { AuthScreens } from "./platform/AuthScreens";
@@ -10,6 +10,7 @@ import { Button } from "./components/ui";
 import { fmtDate } from "./lib/format";
 import TenantApp from "./App";
 import type { Tenant } from "./platform/types";
+import { ThemeProvider } from './context/ThemeContext';
 
 function Router() {
   const { session } = usePlatform();
@@ -27,11 +28,9 @@ function Router() {
   }
 
   if (session.status === "signedOut") {
-    // Primero el flyer/presentación; el botón lleva a iniciar sesión / registro
     return showAuth ? <AuthScreens /> : <Flyer onEnter={() => setShowAuth(true)} />;
   }
 
-  // signedIn
   const tenant = session.tenant;
   if (!isActive(tenant)) {
     return <Paywall tenant={tenant} />;
@@ -75,8 +74,6 @@ function Paywall({ tenant }: { tenant: Tenant }) {
 }
 
 export default function RootApp() {
-  // Panel de administración OCULTO: se abre solo si la URL termina en #admin.
-  // El cliente nunca lo ve; tú entras con tu enlace + #admin + tu clave.
   const [adminMode, setAdminMode] = useState(
     typeof window !== "undefined" && window.location.hash.toLowerCase().includes("admin"),
   );
@@ -93,8 +90,10 @@ export default function RootApp() {
   }
 
   return (
-    <PlatformProvider>
-      <Router />
-    </PlatformProvider>
+    <ThemeProvider>
+      <PlatformProvider>
+        <Router />
+      </PlatformProvider>
+    </ThemeProvider>
   );
 }

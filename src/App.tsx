@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+﻿import { useEffect, useState, type ReactNode } from "react";
 import { StoreProvider, useStore } from "./lib/store";
 import { usePlatform, daysLeft, isActive } from "./platform/platformStore";
 import { cn } from "./utils/cn";
@@ -13,7 +13,6 @@ import {
   AccountingIcon,
   ReportsIcon,
   SettingsIcon,
-  StoreIcon,
   WalletIcon,
   BalanceIcon,
   ExchangeIcon,
@@ -36,12 +35,12 @@ import { Cambio } from "./modules/Cambio";
 import { Insumos } from "./modules/Insumos";
 import { Calculadora } from "./modules/Calculadora";
 import { Elaborados } from "./modules/Elaborados";
-import { Almacenes } from "./modules/Almacenes";
 import { Suscripcion } from "./platform/Suscripcion";
 import { canAccess, defaultModule, ROLE_LABEL, type Role } from "./platform/roles";
 import { buildNotifications } from "./lib/notifications";
 import { NotificationsBell } from "./components/NotificationsBell";
 import type { ModuleKey } from "./lib/types";
+import { useTheme } from './context/ThemeContext';
 
 const nav: Array<{ key: ModuleKey; label: string; Icon: (p: { className?: string }) => ReactNode }> = [
   { key: "dashboard", label: "Resumen", Icon: DashboardIcon },
@@ -57,7 +56,6 @@ const nav: Array<{ key: ModuleKey; label: string; Icon: (p: { className?: string
   { key: "cuadre", label: "Cuadre de turno", Icon: BalanceIcon },
   { key: "cambio", label: "Tasa de cambio", Icon: ExchangeIcon },
   { key: "calculadora", label: "Calculadora", Icon: CalcIcon },
-  { key: "almacenes", label: "Almacenes (Pro)", Icon: StoreIcon },
   { key: "usuarios", label: "Usuarios y permisos", Icon: AccountUsersIcon },
   { key: "suscripcion", label: "Mi suscripción", Icon: WalletIcon },
   { key: "ajustes", label: "Ajustes", Icon: SettingsIcon },
@@ -77,7 +75,6 @@ const titles: Record<ModuleKey, string> = {
   cuadre: "Cuadre de turno",
   cambio: "Tasa de cambio",
   calculadora: "Calculadora",
-  almacenes: "Almacenes y negocios",
   usuarios: "Usuarios y permisos",
   suscripcion: "Mi suscripción",
   ajustes: "Ajustes",
@@ -86,6 +83,7 @@ const titles: Record<ModuleKey, string> = {
 function Shell() {
   const { data, cloudEnabled, syncing, enableCloud } = useStore();
   const { session, logout, backend } = usePlatform();
+  const { theme, toggleTheme } = useTheme();
   const role: Role = session.status === "signedIn" ? session.role : "owner";
   const memberName = session.status === "signedIn" ? session.memberName : "";
   const [active, setActive] = useState<ModuleKey>(() => defaultModule(role));
@@ -99,39 +97,37 @@ function Shell() {
   const tenant = session.status === "signedIn" ? session.tenant : null;
   const visibleNav = nav.filter((n) => canAccess(role, n.key));
 
-  // Si el módulo activo no está permitido para el rol, ir al inicial del rol
   useEffect(() => {
     if (!canAccess(role, active)) setActive(defaultModule(role));
   }, [role, active]);
 
-  // Activar sincronización en la nube cuando hay backend y sesión
   useEffect(() => {
     if (backend && tenant && !cloudEnabled) {
       enableCloud({ tenantId: tenant.id, sellerId: tenant.id, sellerName: memberName || tenant.owner_name });
     }
   }, [backend, tenant, cloudEnabled, enableCloud, memberName]);
+
   const dl = tenant ? daysLeft(tenant) : 0;
   const status = tenant ? (isActive(tenant) ? "activa" : "vencida") : "activa";
   const businessName = tenant?.business_name ?? data.business.name;
 
-  // Notificaciones (si están activadas en ajustes)
   const notifsEnabled = data.business.notifications !== false;
   const notifs = notifsEnabled ? buildNotifications(data, { daysToExpire: tenant ? dl : null }) : [];
 
   return (
-    <div className="flex min-h-screen bg-[#f5f5f7] text-slate-900">
+    <div className="flex min-h-screen bg-[#f5f5f7] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 transform flex-col border-r border-black/5 bg-white/80 backdrop-blur-xl transition-transform duration-300 lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-64 transform flex-col border-r border-black/5 bg-white/80 backdrop-blur-xl transition-transform duration-300 dark:border-white/5 dark:bg-slate-900/80 lg:static lg:translate-x-0",
           menuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center gap-3 border-b border-black/5 px-5 py-5">
+        <div className="flex items-center gap-3 border-b border-black/5 px-5 py-5 dark:border-white/5">
           <img src="./icon-512.png" alt="AlNegocio" className="h-11 w-11 rounded-2xl shadow-lg shadow-emerald-500/20" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-black tracking-tight text-slate-900">{businessName}</p>
-            <p className="text-xs text-slate-400">{ROLE_LABEL[role]}{memberName ? ` · ${memberName}` : ""}</p>
+            <p className="truncate text-sm font-black tracking-tight text-slate-900 dark:text-white">{businessName}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{ROLE_LABEL[role]}{memberName ? ` · ${memberName}` : ""}</p>
           </div>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
@@ -143,7 +139,7 @@ function Shell() {
                 "press flex w-full items-center gap-3 rounded-2xl px-3.5 py-2.5 text-left text-sm font-medium transition-apple",
                 active === key
                   ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
-                  : "text-slate-600 hover:bg-black/5",
+                  : "text-slate-600 hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/5",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
@@ -154,13 +150,13 @@ function Shell() {
             </button>
           ))}
         </nav>
-        <div className="border-t border-black/5 p-3">
+        <div className="border-t border-black/5 p-3 dark:border-white/5">
           {tenant && (
-            <button onClick={() => go("suscripcion")} className={cn("press mb-2 w-full rounded-2xl px-3 py-2.5 text-left text-xs font-semibold transition-apple", status === "activa" ? "bg-emerald-500/10 text-emerald-700" : "bg-red-500/10 text-red-700")}>
+            <button onClick={() => go("suscripcion")} className={cn("press mb-2 w-full rounded-2xl px-3 py-2.5 text-left text-xs font-semibold transition-apple", status === "activa" ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400")}>
               {status === "activa" ? `Suscripción activa · ${dl} días` : "Suscripción vencida"}
             </button>
           )}
-          <button onClick={logout} className="press w-full rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-slate-500 transition-apple hover:bg-black/5">Cerrar sesión</button>
+          <button onClick={logout} className="press w-full rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-slate-500 transition-apple hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/5">Cerrar sesión</button>
         </div>
       </aside>
 
@@ -168,27 +164,43 @@ function Shell() {
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="glass sticky top-0 z-20 flex items-center gap-3 border-b border-black/5 px-4 py-3.5 sm:px-6">
-          <button onClick={() => setMenuOpen(true)} className="press rounded-xl p-2 text-slate-600 transition-apple hover:bg-black/5 lg:hidden">
+        <header className="glass sticky top-0 z-20 flex items-center gap-3 border-b border-black/5 px-4 py-3.5 dark:border-white/5 sm:px-6">
+          <button onClick={() => setMenuOpen(true)} className="press rounded-xl p-2 text-slate-600 transition-apple hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/5 lg:hidden">
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900">{titles[active]}</h1>
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">{titles[active]}</h1>
           {tenant && status !== "activa" && (
-            <button onClick={() => go("suscripcion")} className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+            <button onClick={() => go("suscripcion")} className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 dark:bg-red-500/20 dark:text-red-400">
               Renueva tu suscripción
             </button>
           )}
           <div className="ml-auto flex items-center gap-2">
             {cloudEnabled && (
-              <span className={`hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold sm:flex ${syncing ? "bg-amber-50 text-amber-700" : "bg-sky-50 text-sky-700"}`}>
+              <span className={`hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold sm:flex ${syncing ? "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400" : "bg-sky-50 text-sky-700 dark:bg-sky-500/20 dark:text-sky-400"}`}>
                 <span className={`h-2 w-2 rounded-full ${syncing ? "animate-pulse bg-amber-500" : "bg-sky-500"}`} />
                 {syncing ? "Sincronizando…" : "En la nube"}
               </span>
             )}
+            <button
+              onClick={toggleTheme}
+              className="press rounded-xl p-2 text-slate-600 transition-apple hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10"
+              aria-label="Modo claro/oscuro"
+            >
+              {theme === 'dark' ? (
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
             {notifsEnabled && <NotificationsBell notifs={notifs} />}
-            <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 sm:inline">
+            <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 sm:inline">
               {new Date().toLocaleDateString("es-CU", { weekday: "short", day: "numeric", month: "short" })}
             </span>
           </div>
@@ -214,7 +226,6 @@ function Shell() {
           )}
           {active === "cambio" && <Cambio canEdit={role === "owner"} />}
           {active === "calculadora" && <Calculadora />}
-          {active === "almacenes" && <Almacenes isPro={(tenant?.plan_id ?? "estandar") === "pro"} />}
           {active === "usuarios" && <Usuarios />}
           {active === "suscripcion" && tenant && <Suscripcion tenant={tenant} />}
           {active === "ajustes" && <Ajustes />}
