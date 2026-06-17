@@ -1,6 +1,4 @@
-// Service Worker de AlNegocio
-// Permite abrir la app SIN INTERNET una vez visitada/instalada.
-const CACHE = "alnegocio-v1";
+﻿const CACHE = "alnegocio-v1";
 const CORE = ["./", "./index.html", "./manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -22,10 +20,8 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
-  // No interceptar llamadas al backend (Supabase): siempre que haya red.
   if (url.hostname.includes("supabase")) return;
 
-  // Para navegación (abrir la app): primero red, si falla -> caché.
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -39,7 +35,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Otros recursos: caché primero, si no -> red (y guardar).
   event.respondWith(
     caches.match(req).then(
       (cached) =>
