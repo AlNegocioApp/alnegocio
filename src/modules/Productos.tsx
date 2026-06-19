@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { useStore } from "../lib/store";
 import { Card, Button, Input, NumberInput, Select, Modal, Badge, EmptyState, Stat } from "../components/ui";
 import { SuccessToast } from "../components/SuccessToast";
@@ -9,7 +9,6 @@ import type { Product, ProductKind, RecipeItem } from "../lib/types";
 
 const empty = { name: "", sku: "", categoryId: "", unit: "u", cost: 0, price: 0, stock: 0, minStock: 0, kind: "reventa" as const, recipe: [], laborCost: 0 };
 
-// Calcula el costo de un producto elaborado = suma(insumo.qty * insumo.cost) + mano de obra
 function recipeCost(recipe: { qty: number; cost: number }[] | undefined, labor: number | undefined): number {
   const ing = (recipe ?? []).reduce((a, r) => a + r.qty * r.cost, 0);
   return Math.round(ing + (labor ?? 0));
@@ -17,6 +16,9 @@ function recipeCost(recipe: { qty: number; cost: number }[] | undefined, labor: 
 
 export function Productos() {
   const { data, saveProduct, deleteProduct, addCategory, deleteCategory } = useStore();
+  const { session } = usePlatform(); // 👈 IMPORTANTE: obtener tenant
+  const tenant = session.status === "signedIn" ? session.tenant : null;
+  
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("all");
   const [open, setOpen] = useState(false);
@@ -46,33 +48,28 @@ export function Productos() {
     setForm(p);
     setOpen(true);
   }
+  
   function submit() {
     if (!form.name.trim()) return;
-    // si es elaborado, el costo se calcula de la receta + mano de obra
-    const finalForm =
-      form.kind === "elaborado"
-        ? { ...form, cost: recipeCost(form.recipe, form.laborCost) }
-        : { ...form, recipe: [], laborCost: 0 };
-    saveProduct(finalForm);
+    
+    // 🔧 DATOS CORRECTOS PARA SUPABASE
+    const productData = {
+      name: form.name,
+      price: form.price,
+      stock: form.stock,
+      cost: form.cost || 0,
+      sku: form.sku || '',
+      unit: form.unit || 'u',
+      min_stock: form.minStock || 0,
+      category_id: form.categoryId || null,
+      tenant_id: tenant?.id, // 👈 IMPORTANTE: tenant_id
+    };
+    
+    saveProduct(productData);
     setOpen(false);
     setSuccess(true);
   }
 
-  function addIngredient(supplyId: string) {
-    const sup = data.supplies.find((s) => s.id === supplyId);
-    if (!sup) return;
-    setForm((f) => {
-      if ((f.recipe ?? []).some((r) => r.supplyId === supplyId)) return f;
-      const item: RecipeItem = { supplyId: sup.id, name: sup.name, unit: sup.unit, qty: 1, cost: sup.cost };
-      return { ...f, recipe: [...(f.recipe ?? []), item] };
-    });
-  }
-  function setIngredientQty(supplyId: string, qty: number) {
-    setForm((f) => ({ ...f, recipe: (f.recipe ?? []).map((r) => (r.supplyId === supplyId ? { ...r, qty } : r)) }));
-  }
-  function removeIngredient(supplyId: string) {
-    setForm((f) => ({ ...f, recipe: (f.recipe ?? []).filter((r) => r.supplyId !== supplyId) }));
-  }
   function margin(p: { cost: number; price: number }) {
     return p.price > 0 ? ((p.price - p.cost) / p.price) * 100 : 0;
   }
@@ -160,14 +157,13 @@ export function Productos() {
       </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title={form.id ? "Editar producto" : "Nuevo producto"} wide>
-        {/* Tipo de producto */}
         <div className="mb-4">
           <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Tipo de producto</span>
           <div className="grid grid-cols-2 gap-2">
-            {([
+            {[
               { id: "reventa", label: "Reventa", desc: "Lo compras y lo vendes" },
               { id: "elaborado", label: "Elaborado", desc: "Lo haces con insumos" },
-            ] as const).map((t) => (
+            ].map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -186,68 +182,14 @@ export function Productos() {
           <Input label="SKU / Código" value={form.sku} onChange={(v) => setForm({ ...form, sku: v })} />
           <Select label="Categoría" value={form.categoryId} onChange={(v) => setForm({ ...form, categoryId: v })} options={data.categories.map((c) => ({ value: c.id, label: c.name }))} />
           <Input label="Unidad (u, lb, paq…)" value={form.unit} onChange={(v) => setForm({ ...form, unit: v })} />
-          {form.kind === "elaborado" ? (
-            <div>
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Costo (automático)</span>
-              <div className="rounded-xl bg-slate-100 px-3.5 py-2.5 text-sm font-bold text-slate-700">{cup(recipeCost(form.recipe, form.laborCost))}</div>
-            </div>
-          ) : (
-            <NumberInput label="Costo (CUP)" min={0} value={form.cost} onChange={(n) => setForm({ ...form, cost: n })} />
-          )}
+          <NumberInput label="Costo (CUP)" min={0} value={form.cost} onChange={(n) => setForm({ ...form, cost: n })} />
           <NumberInput label="Precio venta (CUP)" min={0} value={form.price} onChange={(n) => setForm({ ...form, price: n })} />
           <NumberInput label="Stock actual" min={0} value={form.stock} onChange={(n) => setForm({ ...form, stock: n })} />
           <NumberInput label="Stock mínimo" min={0} value={form.minStock} onChange={(n) => setForm({ ...form, minStock: n })} />
         </div>
 
-        {/* Receta para elaborados */}
-        {form.kind === "elaborado" && (
-          <div className="mt-4 rounded-2xl border border-slate-200 p-4">
-            <p className="mb-2 text-sm font-bold text-slate-800">Receta (insumos por 1 {form.unit || "unidad"})</p>
-            {data.supplies.length === 0 ? (
-              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Primero agrega insumos en el apartado "Insumos".</p>
-            ) : (
-              <>
-                <Select
-                  label=""
-                  value=""
-                  onChange={(v) => v && addIngredient(v)}
-                  options={[{ value: "", label: "+ Agregar insumo…" }, ...data.supplies.filter((s) => !(form.recipe ?? []).some((r) => r.supplyId === s.id)).map((s) => ({ value: s.id, label: `${s.name} (${cup(s.cost)}/${s.unit})` }))]}
-                />
-                <div className="mt-2 space-y-2">
-                  {(form.recipe ?? []).length === 0 ? (
-                    <p className="text-xs text-slate-400">Sin insumos aún.</p>
-                  ) : (
-                    (form.recipe ?? []).map((r) => (
-                      <div key={r.supplyId} className="flex items-center gap-2 rounded-lg bg-slate-50 px-2.5 py-2">
-                        <span className="min-w-0 flex-1 truncate text-sm text-slate-700">{r.name}</span>
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          value={r.qty}
-                          onChange={(e) => setIngredientQty(r.supplyId, Number(e.target.value))}
-                          className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-center text-sm"
-                        />
-                        <span className="w-10 text-xs text-slate-400">{r.unit}</span>
-                        <span className="w-24 text-right text-sm font-semibold text-slate-900">{cup(r.qty * r.cost)}</span>
-                        <button onClick={() => removeIngredient(r.supplyId)} className="rounded-lg p-1 text-red-500 hover:bg-red-50"><TrashIcon className="h-4 w-4" /></button>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className="mt-3">
-                  <NumberInput label="Mano de obra / gas / extra por unidad (CUP)" min={0} value={form.laborCost ?? 0} onChange={(n) => setForm({ ...form, laborCost: n })} />
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
         <div className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
-          {form.kind === "elaborado" ? (
-            <>Costo calculado: <strong>{cup(recipeCost(form.recipe, form.laborCost))}</strong> · </>
-          ) : null}
-          Margen estimado: <strong className="text-emerald-600">{pct(margin(form.kind === "elaborado" ? { cost: recipeCost(form.recipe, form.laborCost), price: form.price } : form))}</strong> · Ganancia por unidad: <strong>{cup(form.price - (form.kind === "elaborado" ? recipeCost(form.recipe, form.laborCost) : form.cost))}</strong>
+          Margen estimado: <strong className="text-emerald-600">{pct(margin(form))}</strong> · Ganancia por unidad: <strong>{cup(form.price - form.cost)}</strong>
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
@@ -271,8 +213,6 @@ export function Productos() {
       </Modal>
 
       {success && <SuccessToast message="¡Producto guardado!" onDone={() => setSuccess(false)} />}
-
-      {/* Detalle de receta de un producto elaborado */}
       <Modal open={!!recipeOf} onClose={() => setRecipeOf(null)} title={`Receta · ${recipeOf?.name ?? ""}`}>
         {recipeOf && (
           <div>
@@ -301,7 +241,6 @@ export function Productos() {
               </div>
             )}
             <div className="mt-3 space-y-1 text-sm">
-              <div className="flex justify-between text-slate-600"><span>Mano de obra / extra</span><span>{cup(recipeOf.laborCost ?? 0)}</span></div>
               <div className="flex justify-between font-bold text-slate-900"><span>Costo total</span><span>{cup(recipeOf.cost)}</span></div>
               <div className="flex justify-between text-slate-600"><span>Precio de venta</span><span>{cup(recipeOf.price)}</span></div>
               <div className="flex justify-between font-bold text-emerald-600"><span>Ganancia por unidad</span><span>{cup(recipeOf.price - recipeOf.cost)}</span></div>
